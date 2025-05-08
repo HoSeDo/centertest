@@ -75,15 +75,4 @@ kakao.maps.load(function () {
   // 마커 포함 지도 범위로 자동 조정
   map.setBounds(bounds);
 
-  // 클릭한 위치 표시 마커 (1개만 사용)
-  var clickMarker = new kakao.maps.Marker();
-  clickMarker.setMap(map);
-
-  kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
-    var latlng = mouseEvent.latLng;
-    clickMarker.setPosition(latlng);
-
-    var resultDiv = document.getElementById('clickLatlng');
-    resultDiv.innerHTML = message;
-  });
 });
