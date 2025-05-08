@@ -11,7 +11,7 @@ kakao.maps.load(function () {
 
   // 마커 목록
   var positions = [
-    { title: '공주시 치매안심센터', latlng: new kakao.maps.LatLng(36.457006, 127.120185) },
+    { title: '공주시 치매안심센터', latlng: new kakao.maps.LatLng(36.457006, 127.120185), address: 'test', phone : '041-582-2125' },
     { title: '금산군 치매안심센터', latlng: new kakao.maps.LatLng(36.109486, 127.493454) },
     { title: '금산군 추부면 치매안심센터', latlng: new kakao.maps.LatLng(36.190988, 127.469942) },
     { title: '금산군 군북면 치매안심센터', latlng: new kakao.maps.LatLng(36.166273, 127.525738) },
