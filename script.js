@@ -1,21 +1,26 @@
-var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
-mapOption = {
-    center: new kakao.maps.LatLng(37.56808, 126.98046), // 지도의 중심좌표
-    level: 5, // 지도의 확대 레벨
-    mapTypeId : kakao.maps.MapTypeId.ROADMAP // 지도종류
-}; 
+window.onload = function () {
+  var mapContainer = document.getElementById('map');
+  var mapOption = {
+    center: new kakao.maps.LatLng(37.56808, 126.98046),
+    level: 5,
+    mapTypeId: kakao.maps.MapTypeId.ROADMAP
+  };
 
-// 지도를 생성한다 
-var map = new kakao.maps.Map(mapContainer, mapOption);
+  var map = new kakao.maps.Map(mapContainer, mapOption);
 
-// 지도에 확대 축소 컨트롤을 생성한다
-var zoomControl = new kakao.maps.ZoomControl();
+  var zoomControl = new kakao.maps.ZoomControl();
+  map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
-// 지도의 우측에 확대 축소 컨트롤을 추가한다
-map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+  var marker = new kakao.maps.Marker({
+    position: new kakao.maps.LatLng(37.56653, 126.98109),
+    map: map
+  });
 
-// 지도에 마커를 생성하고 표시한다
-var marker = new kakao.maps.Marker({
-  position: new kakao.maps.LatLng(37.56653, 126.98109), // 마커의 좌표
-   map: map // 마커를 표시할 지도 객체
-});
+  // 지도 클릭 시 위도/경도 표시
+  kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+    var latlng = mouseEvent.latLng;
+    var message = '클릭한 위치의 위도는 ' + latlng.getLat() + ' 이고, ';
+    message += '경도는 ' + latlng.getLng() + ' 입니다';
+    document.getElementById('clickLatlng').innerText = message;
+  });
+};
