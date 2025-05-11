@@ -2,65 +2,66 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>전국 치매안심센터 지도</title>
+  <title>치매안심센터 지도</title>
   <style>
     #map {
       width: 100%;
-      height: 700px;
+      height: 600px;
     }
   </style>
-  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b08bb0d7029cff05ee0ab4ab533493ce"></script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b08bb0d7029cff05ee0ab4ab533493ce"></script>
 </head>
 <body>
   <h1>전국 치매안심센터 지도</h1>
   <div id="map"></div>
 
   <script>
-    // 1. 카카오 지도 기본 설정
     const mapContainer = document.getElementById('map');
     const mapOption = {
-      center: new kakao.maps.LatLng(36.5, 127.5), // 대한민국 중심
+      center: new kakao.maps.LatLng(36.5, 127.8), // 대한민국 중심
       level: 7
     };
     const map = new kakao.maps.Map(mapContainer, mapOption);
 
-    // 2. JSON 데이터 로드
-    fetch('./center_data.json')
+    // JSON 파일 로드
+    fetch('center_data.json')
       .then(response => response.json())
-      .then(data => {
-        data.forEach(center => {
-          const lat = parseFloat(center.latitude);
-          const lng = parseFloat(center.longitude);
-          const name = center.cnterNm;
-          const addr = center.rdnmadr;
-          const phone = center.operPhoneNumber;
+      .then(json => {
+        const centers = json.records; // ✅ 실제 센터 데이터
 
-          // 3. 마커 생성
-          const markerPosition = new kakao.maps.LatLng(lat, lng);
-          const marker = new kakao.maps.Marker({
-            position: markerPosition,
-            map: map
-          });
+        centers.forEach(center => {
+          const name = center["치매센터명"];
+          const addr = center["소재지도로명주소"];
+          const lat = parseFloat(center["위도"]);
+          const lng = parseFloat(center["경도"]);
+          const phone = center["운영기관전화번호"];
 
-          // 4. 인포윈도우 생성
-          const infoContent = `
-            <div style="padding:5px; font-size:13px;">
-              <strong>${name}</strong><br>
-              ${addr}<br>
-              ${phone}
-            </div>
-          `;
-          const infowindow = new kakao.maps.InfoWindow({
-            content: infoContent
-          });
+          if (!isNaN(lat) && !isNaN(lng)) {
+            const markerPosition = new kakao.maps.LatLng(lat, lng);
+            const marker = new kakao.maps.Marker({
+              position: markerPosition,
+              map: map
+            });
 
-          // 마커 클릭 시 인포윈도우 표시
-          kakao.maps.event.addListener(marker, 'click', function() {
-            infowindow.open(map, marker);
-          });
+            const infowindow = new kakao.maps.InfoWindow({
+              content: `
+                <div style="padding:5px; font-size:13px;">
+                  <strong>${name}</strong><br/>
+                  ${addr}<br/>
+                  ☎ ${phone}
+                </div>
+              `
+            });
+
+            kakao.maps.event.addListener(marker, 'click', function () {
+              infowindow.open(map, marker);
+            });
+          }
         });
       })
-      .catch(error => console.error("JSON 로드 실패:", error));
+      .catch(error => {
+        console.error("JSON 로드 실패:", error);
+      });
   </script>
 </body>
 </html>
