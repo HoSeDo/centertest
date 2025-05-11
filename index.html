@@ -1,45 +1,72 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+   <meta charset="UTF-8" />
   <title>전국 치매안심센터</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet"/>
-  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b08bb0d7029cff05ee0ab4ab533493ce"></script>
-  <script defer src="script.js"></script>
 </head>
 <body>
-  <main>
-    <h2>시·도 선택</h2>
-    <select id="provinceSelect">
-      <option value="">시·도 선택</option>
-      <option>서울특별시</option>
-      <option>부산광역시</option>
-      <option>대구광역시</option>
-      <option>인천광역시</option>
-      <option>광주광역시</option>
-      <option>대전광역시</option>
-      <option>울산광역시</option>
-      <option>세종특별자치시</option>
-      <option>경기도</option>
-      <option>강원특별자치도</option>
-      <option>충청북도</option>
-      <option>충청남도</option>
-      <option>전북특별자치도</option>
-      <option>전라남도</option>
-      <option>경상북도</option>
-      <option>경상남도</option>
-      <option>제주특별자치도</option>
-    </select>
+  
+<div id="map" style="width:100%;height:500px;"></div>
 
-    <div class="content">
-      <div id="list"></div>
+<!-- 카카오 지도 API 스크립트 -->
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b08bb0d7029cff05ee0ab4ab533493ce"></script>
 
-      <div class="map-wrap">
-        <h3>지도</h3>
-        <div id="map"></div>
-      </div>
-    </div>
-  </main>
+<script>
+  // 공공데이터포털 API 호출
+  fetch('http://api.data.go.kr/openapi/tn_pubr_public_imbclty_cnter_api') // 실제 API 주소와 인증키 포함해야 함
+  const serviceKey = 'PGaRDR11RPT4oGwm0d1zVinIrqETQaNooSxuLuV5C56uqGE%2Bcdg1Scr5ZMaWaGcNAXG1v9K1JYgpU8z3SzZoOQ%3D%3D'
+    .then(response => response.json())
+    .then(data => {
+      const container = document.getElementById('map');
+      const options = {
+        center: new kakao.maps.LatLng(37.5665, 126.9780), // 초기 지도 중심 좌표 (서울 시청 기준)
+        level: 5
+      };
+      const map = new kakao.maps.Map(container, options);
+
+      // JSON 응답 구조에 따라 경로 조정 필요할 수 있음
+      const items = data.items || data.response?.body?.items?.item; // 보통 구조 확인 필요
+
+      items.forEach(item => {
+        // 구조 분해로 필요한 필드 추출
+        const {
+          cnterNm,         // 센터 이름
+          rdnmadr,         // 도로명 주소
+          latitude,        // 위도
+          longitude,       // 경도
+          operPhoneNumber  // 전화번호
+        } = item;
+
+        // 위도/경도 숫자 변환 (문자열일 수 있음)
+        const lat = parseFloat(latitude);
+        const lng = parseFloat(longitude);
+
+        // 유효 좌표만 처리
+        if (!isNaN(lat) && !isNaN(lng)) {
+          const markerPosition = new kakao.maps.LatLng(lat, lng);
+          const marker = new kakao.maps.Marker({
+            position: markerPosition,
+            map: map
+          });
+
+          const infowindow = new kakao.maps.InfoWindow({
+            content: `
+              <div style="padding:5px; font-size:13px;">
+                <strong>${cnterNm}</strong><br/>
+                ${rdnmadr}<br/>
+                📞 ${operPhoneNumber}
+              </div>
+            `
+          });
+
+          kakao.maps.event.addListener(marker, 'click', function () {
+            infowindow.open(map, marker);
+          });
+        }
+      });
+    })
+    .catch(error => {
+      console.error('공공데이터 API 오류:', error);
+    });
+</script>
 </body>
-</html>
